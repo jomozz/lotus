@@ -19,7 +19,7 @@ import (
 const BootstrappersFile = "interopnet.pi"
 const GenesisFile = "interopnet.car"
 
-const GenesisNetworkVersion = network.Version13
+const GenesisNetworkVersion = network.Version14
 
 var UpgradeBreezeHeight = abi.ChainEpoch(-1)
 
@@ -47,21 +47,22 @@ var UpgradeTurboHeight = abi.ChainEpoch(-15)
 
 var UpgradeHyperdriveHeight = abi.ChainEpoch(-16)
 var UpgradeChocolateHeight = abi.ChainEpoch(-17)
-var UpgradeOhSnapHeight = abi.ChainEpoch(-18)
+var UpgradeOhSnapHeight = abi.ChainEpoch(300)
 
 var DrandSchedule = map[abi.ChainEpoch]DrandEnum{
 	0: DrandMainnet,
 }
 
 func init() {
-	policy.SetSupportedProofTypes(
-		abi.RegisteredSealProof_StackedDrg2KiBV1,
-		abi.RegisteredSealProof_StackedDrg8MiBV1,
-		abi.RegisteredSealProof_StackedDrg512MiBV1,
-	)
-	policy.SetConsensusMinerMinPower(abi.NewStoragePower(2048))
 	policy.SetMinVerifiedDealSize(abi.NewStoragePower(256))
 	policy.SetPreCommitChallengeDelay(abi.ChainEpoch(10))
+
+	policy.SetConsensusMinerMinPower(abi.NewStoragePower(2 << 30))
+	policy.SetSupportedProofTypes(
+		abi.RegisteredSealProof_StackedDrg512MiBV1,
+		abi.RegisteredSealProof_StackedDrg32GiBV1,
+		abi.RegisteredSealProof_StackedDrg64GiBV1,
+	)
 
 	getUpgradeHeight := func(ev string, def abi.ChainEpoch) abi.ChainEpoch {
 		hs, found := os.LookupEnv(ev)
@@ -93,6 +94,8 @@ func init() {
 	UpgradeNorwegianHeight = getUpgradeHeight("LOTUS_NORWEGIAN_HEIGHT", UpgradeNorwegianHeight)
 	UpgradeTurboHeight = getUpgradeHeight("LOTUS_ACTORSV4_HEIGHT", UpgradeTurboHeight)
 	UpgradeHyperdriveHeight = getUpgradeHeight("LOTUS_HYPERDRIVE_HEIGHT", UpgradeHyperdriveHeight)
+	UpgradeChocolateHeight = getUpgradeHeight("LOTUS_CHOCOLATE_HEIGHT", UpgradeChocolateHeight)
+	UpgradeOhSnapHeight = getUpgradeHeight("LOTUS_OHSNAP_HEIGHT", UpgradeOhSnapHeight)
 
 	BuildType |= BuildInteropnet
 	SetAddressNetwork(address.Testnet)
@@ -100,9 +103,9 @@ func init() {
 
 }
 
-const BlockDelaySecs = uint64(builtin2.EpochDurationSeconds)
+const BlockDelaySecs = uint64(5)
 
-const PropagationDelaySecs = uint64(6)
+const PropagationDelaySecs = uint64(1)
 
 // BootstrapPeerThreshold is the minimum number peers we need to track for a sync worker to start
 const BootstrapPeerThreshold = 2
