@@ -2,8 +2,8 @@ package vm
 
 import (
 	"context"
-	"os"
 
+	"github.com/filecoin-project/go-state-types/network"
 	"github.com/filecoin-project/lotus/chain/types"
 	"github.com/ipfs/go-cid"
 )
@@ -15,7 +15,7 @@ type VMI interface {
 }
 
 func NewVM(ctx context.Context, opts *VMOpts) (VMI, error) {
-	if os.Getenv("LOTUS_USE_FVM_DOESNT_WORK_YET") == "1" {
+	if opts.NetworkVersion >= network.Version16 {
 		return NewFVM(ctx, opts)
 	}
 
